@@ -1,0 +1,123 @@
+aid: swan-io
+name: Swan
+review:
+  question: Does Swan expose a documented public WebSocket API?
+  answer: false
+  date: '2026-07-12'
+  reviewer: API Evangelist
+  asyncapiSpecCreated: false
+  asyncapiScopeNote: |
+    No AsyncAPI document was authored. Swan's public API is a GraphQL API served
+    over HTTPS POST (queries and mutations only). Swan delivers real-time events
+    via HTTP webhooks - server-to-endpoint HTTP POST callbacks that carry their
+    own delivery model - not via a server-push transport on Swan's own API. No
+    GraphQL Subscription root and no wss:// endpoint are documented, so there is
+    no WebSocket/SSE surface on Swan's API to model.
+findings:
+  summary: |
+    Swan does not publish a documented public WebSocket API. Swan is a European
+    embedded-banking / Banking-as-a-Service platform. Its public developer
+    surface is a single GraphQL API reached over HTTPS with a POST body, split
+    across a Partner endpoint (requires an OAuth2 access token) and an
+    Unauthenticated endpoint (used during onboarding before a user session
+    exists), each in Sandbox and Live environments. Swan's own GraphQL docs
+    describe only queries (read) and mutations (write); no GraphQL subscriptions
+    are documented. Real-time notifications are delivered through HTTP webhooks.
+    No realtime, bidirectional, or streaming WebSocket (ws:// or wss://)
+    endpoint is documented.
+  transportPrimary: GraphQL
+  transportHonesty: |
+    The primary and only public artifact type is GraphQL (Schema Definition
+    Language), captured at graphql/swan-io.graphql. No OpenAPI document was
+    authored: Swan's data operations are GraphQL, not REST. The one REST-style
+    surface is the OAuth2 token exchange at https://oauth.swan.io/oauth2, which
+    is documented in authentication/swan-io-authentication.yml rather than as a
+    standalone OpenAPI file, because it is an auth detail rather than the product
+    API.
+  confirmed: |
+    Confirmed from Swan's public documentation (docs.swan.io,
+    api-reference.swan.io, swan-io.github.io/swan-partner-frontend) and live
+    probes:
+      - GraphQL transport over HTTPS POST (not REST, not WebSocket).
+      - Endpoint hosts and paths (partner / unauthenticated, sandbox / live).
+      - OAuth2 client-credentials and authorization-code flows, Bearer tokens,
+        backend-only calls, Project scoping.
+      - Consent-gated sensitive mutations (SCA).
+      - Real named mutations: addAccountMemberships, addCards,
+        initiateCreditTransfers (with isInstant for SEPA Instant),
+        resumeAccountMembership.
+      - Rate limit: 2,000 requests / 5 minutes / IP.
+      - Webhooks (not subscriptions) for events.
+  modeled: |
+    Modeled / representative (flagged in graphql/swan-io.graphql header):
+    field-level detail of types, exact enum members, and input shapes are a
+    faithful but partial model of the domain, not a byte-for-byte copy of Swan's
+    introspected schema. The exact OAuth2 authorize/token paths under
+    oauth.swan.io are inferred; verify by introspecting the Sandbox endpoint.
+  transports:
+    - protocol: GraphQL
+      scheme: https
+      baseURL: https://api.swan.io/live-partner/graphql
+      documented: true
+      note: Authenticated Partner API. HTTPS POST with a GraphQL body. OAuth2 Bearer token required.
+    - protocol: GraphQL
+      scheme: https
+      baseURL: https://api.swan.io/live-unauthenticated/graphql
+      documented: true
+      note: Unauthenticated API used to start onboarding before a user session exists.
+    - protocol: GraphQL
+      scheme: https
+      baseURL: https://api.swan.io/sandbox-partner/graphql
+      documented: true
+      note: Sandbox Partner endpoint. Also sandbox-partner-admin and sandbox-unauthenticated variants.
+    - protocol: REST
+      scheme: https
+      baseURL: https://oauth.swan.io/oauth2
+      documented: true
+      note: OAuth2 token exchange only (client credentials / authorization code). Not the product API.
+    - protocol: Webhook
+      scheme: https
+      documented: true
+      note: Swan posts event notifications to a partner-configured HTTPS endpoint. Server-to-endpoint HTTP, not WebSocket.
+    - protocol: WebSocket
+      scheme: wss
+      documented: false
+      note: No WebSocket endpoint and no GraphQL subscription are documented in Swan's API reference or developer docs as of the review date.
+  endpointsConfirmed:
+    - POST https://api.swan.io/live-partner/graphql
+    - POST https://api.swan.io/live-unauthenticated/graphql
+    - POST https://api.swan.io/sandbox-partner/graphql
+    - POST https://api.swan.io/sandbox-partner-admin/graphql
+    - POST https://api.swan.io/sandbox-unauthenticated/graphql
+    - POST https://oauth.swan.io/oauth2
+sources:
+  - url: https://docs.swan.io/developers/
+    type: Documentation
+    note: About the Swan API; GraphQL, environments, 2,000 req / 5 min / IP rate limit, backend-only calls.
+  - url: https://docs.swan.io/api/authentication
+    type: Documentation
+    note: OAuth2 + Bearer; client-credentials (server-to-server) and authorization-code (user) flows.
+  - url: https://api-reference.swan.io/
+    type: APIReference
+    note: GraphQL API Reference (queries and mutations); e.g. resumeAccountMembership. No subscriptions.
+  - url: https://swan-io.github.io/swan-partner-frontend/graphql/
+    type: Documentation
+    note: Partner and Unauthenticated GraphQL endpoints; sandbox/live separation.
+  - url: https://docs.swan.io/developers/graphql/
+    type: Documentation
+    note: Swan GraphQL offers queries and mutations; subscriptions are not mentioned.
+actions:
+  graphqlPath: graphql/swan-io.graphql
+  openapiPath: null
+  asyncapiPath: null
+  apisYmlUpdated: true
+  reason: |
+    Swan's public API is GraphQL, so a GraphQL SDL was authored as the primary
+    artifact and referenced from every API entry in apis.yml. No OpenAPI file was
+    created because there is no REST product surface (only the OAuth2 token
+    endpoint, documented under authentication). No AsyncAPI file was created
+    because there is no WebSocket or GraphQL-subscription transport; events are
+    delivered by HTTP webhooks. WebSocket precision answer is false.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

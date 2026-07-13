@@ -1,0 +1,184 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Swan Partner API (GraphQL)",
+    "version": "1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Accounts",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": { "name": "Get account by id", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://api.swan.io/live-partner/graphql",
+            "body": {
+              "type": "graphql",
+              "data": {
+                "query": "query Account($id: ID!) {\n  account(id: $id) {\n    id\n    name\n    IBAN\n    BIC\n    status\n    balances { available { value currency } }\n  }\n}",
+                "variables": "{\n  \"id\": \"account-id\"\n}"
+              }
+            }
+          },
+          "docs": "Fetch a single account, its IBAN/BIC, status, and balances."
+        },
+        {
+          "info": { "name": "List accounts", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://api.swan.io/live-partner/graphql",
+            "body": {
+              "type": "graphql",
+              "data": {
+                "query": "query Accounts($first: Int) {\n  accounts(first: $first) {\n    totalCount\n    edges { node { id name status } }\n  }\n}",
+                "variables": "{\n  \"first\": 20\n}"
+              }
+            }
+          },
+          "docs": "List accounts visible to the current Project / access token."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Account Memberships",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": { "name": "Add account memberships", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://api.swan.io/live-partner/graphql",
+            "body": {
+              "type": "graphql",
+              "data": {
+                "query": "mutation AddAccountMemberships($input: AddAccountMembershipInput!) {\n  addAccountMemberships(input: $input) {\n    accountMemberships { id status email }\n    consent { id consentUrl status }\n  }\n}",
+                "variables": "{\n  \"input\": {\n    \"accountId\": \"account-id\",\n    \"email\": \"member@example.com\",\n    \"canViewAccount\": true\n  }\n}"
+              }
+            }
+          },
+          "docs": "Add up to 200 account memberships with a single consent. Returns a consent URL the user must approve."
+        },
+        {
+          "info": { "name": "Resume account membership", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://api.swan.io/live-partner/graphql",
+            "body": {
+              "type": "graphql",
+              "data": {
+                "query": "mutation ResumeAccountMembership($id: ID!) {\n  resumeAccountMembership(id: $id) {\n    accountMembership { id status }\n  }\n}",
+                "variables": "{\n  \"id\": \"membership-id\"\n}"
+              }
+            }
+          },
+          "docs": "Resume an account membership that was previously suspended."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Cards",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": { "name": "Add cards", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://api.swan.io/live-partner/graphql",
+            "body": {
+              "type": "graphql",
+              "data": {
+                "query": "mutation AddCards($input: AddCardInput!) {\n  addCards(input: $input) {\n    cards { id type status }\n    consent { id consentUrl status }\n  }\n}",
+                "variables": "{\n  \"input\": {\n    \"accountMembershipId\": \"membership-id\",\n    \"printPhysicalCard\": false\n  }\n}"
+              }
+            }
+          },
+          "docs": "Issue up to 200 cards (optionally physical) with a single consent."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Payments",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": { "name": "Initiate SEPA credit transfers", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://api.swan.io/live-partner/graphql",
+            "body": {
+              "type": "graphql",
+              "data": {
+                "query": "mutation InitiateCreditTransfers($input: InitiateCreditTransfersInput!) {\n  initiateCreditTransfers(input: $input) {\n    payment { id status }\n    consent { id consentUrl status }\n  }\n}",
+                "variables": "{\n  \"input\": {\n    \"accountId\": \"account-id\",\n    \"consentRedirectUrl\": \"https://example.com/callback\",\n    \"creditTransfers\": [\n      {\n        \"amount\": { \"value\": \"42.00\", \"currency\": \"EUR\" },\n        \"sepaBeneficiary\": { \"name\": \"Jane Doe\", \"iban\": \"FR7699999001000000000000000\" },\n        \"isInstant\": true\n      }\n    ]\n  }\n}"
+              }
+            }
+          },
+          "docs": "Send one or more SEPA credit transfers; set isInstant for SEPA Instant Credit Transfers."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Transactions",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": { "name": "List account transactions", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://api.swan.io/live-partner/graphql",
+            "body": {
+              "type": "graphql",
+              "data": {
+                "query": "query Transactions($id: ID!, $first: Int) {\n  account(id: $id) {\n    transactions(first: $first) {\n      totalCount\n      edges { node { id label statusInfo amount { value currency } } }\n    }\n  }\n}",
+                "variables": "{\n  \"id\": \"account-id\",\n  \"first\": 20\n}"
+              }
+            }
+          },
+          "docs": "Read the transaction ledger for an account via a Relay-style connection."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Onboarding",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": { "name": "Onboard company account holder", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://api.swan.io/live-unauthenticated/graphql",
+            "body": {
+              "type": "graphql",
+              "data": {
+                "query": "mutation OnboardCompany($input: OnboardCompanyAccountHolderInput!) {\n  onboardCompanyAccountHolder(input: $input) {\n    onboarding { id status onboardingUrl }\n  }\n}",
+                "variables": "{\n  \"input\": {\n    \"accountName\": \"Acme SAS\",\n    \"email\": \"founder@acme.example\",\n    \"redirectUrl\": \"https://example.com/onboarding/complete\"\n  }\n}"
+              }
+            }
+          },
+          "docs": "Start onboarding for a company account holder against the Unauthenticated endpoint; returns an onboardingUrl."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

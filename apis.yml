@@ -1,0 +1,232 @@
+aid: swan-io
+url: https://raw.githubusercontent.com/api-evangelist/swan-io/refs/heads/main/apis.yml
+name: Swan
+kind: company
+description: Swan is a European embedded-banking / Banking-as-a-Service (BaaS)
+  platform, headquartered in France, that lets companies embed accounts, IBANs,
+  cards, and SEPA payments into their own products. Swan holds an Electronic Money
+  Institution (EMI) license and exposes a single GraphQL API covering accounts,
+  account holders, account memberships, IBAN management, card issuing,
+  transactions, SEPA credit transfers and direct debits, digital onboarding,
+  users, and consents. Integrations are backend-only, authenticated with OAuth2
+  (client credentials for server-to-server and authorization code for user
+  access tokens) and scoped to a partner Project, with separate Sandbox and Live
+  environments.
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+tags:
+- Embedded Banking
+- Banking as a Service
+- BaaS
+- Payments
+- Accounts
+- Cards
+- IBAN
+- SEPA
+- Europe
+- France
+- Fintech
+- GraphQL
+created: '2026-07-12'
+modified: '2026-07-12'
+specificationVersion: '0.19'
+apis:
+- aid: swan-io:swan-io-accounts-api
+  name: Swan Accounts API
+  tags:
+  - Accounts
+  - Account Holders
+  - IBAN
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.swan.io/api/services/accounts
+  baseURL: https://api.swan.io/live-partner/graphql
+  properties:
+  - url: https://docs.swan.io/developers/
+    type: Documentation
+  - url: https://api-reference.swan.io/
+    type: APIReference
+  - url: graphql/swan-io.graphql
+    type: GraphQL
+  - url: collections/swan-io.postman_collection.json
+    type: PostmanCollection
+  - url: collections/swan-io.opencollection.json
+    type: OpenCollection
+  description: Create and manage bank accounts and their account holders through
+    the GraphQL Partner API - open accounts, read balances and status, and access
+    the IBAN and BIC distributed to each account. Queries include account and
+    accounts; mutations cover account creation and updates. Scoped to a partner
+    Project and authenticated with an OAuth2 access token.
+- aid: swan-io:swan-io-account-memberships-api
+  name: Swan Account Memberships API
+  tags:
+  - Account Memberships
+  - Permissions
+  - Users
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.swan.io/api/services/account-memberships
+  baseURL: https://api.swan.io/live-partner/graphql
+  properties:
+  - url: https://docs.swan.io/developers/
+    type: Documentation
+  - url: https://api-reference.swan.io/mutations/resume-account-membership/
+    type: APIReference
+  - url: graphql/swan-io.graphql
+    type: GraphQL
+  - url: collections/swan-io.postman_collection.json
+    type: PostmanCollection
+  - url: collections/swan-io.opencollection.json
+    type: OpenCollection
+  description: Bind users to accounts and manage their permissions. Mutations
+    include addAccountMemberships (add up to 200 memberships with a single
+    consent), bindAccountMembership, suspendAccountMembership, and
+    resumeAccountMembership. Membership permissions govern who can view the
+    account, initiate payments, and manage cards.
+- aid: swan-io:swan-io-cards-api
+  name: Swan Cards API
+  tags:
+  - Cards
+  - Card Issuing
+  - Payments
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.swan.io/api/services/cards
+  baseURL: https://api.swan.io/live-partner/graphql
+  properties:
+  - url: https://docs.swan.io/developers/
+    type: Documentation
+  - url: https://api-reference.swan.io/
+    type: APIReference
+  - url: graphql/swan-io.graphql
+    type: GraphQL
+  - url: collections/swan-io.postman_collection.json
+    type: PostmanCollection
+  - url: collections/swan-io.opencollection.json
+    type: OpenCollection
+  description: Issue and manage virtual and physical payment cards attached to
+    account memberships. The addCards mutation adds up to 200 cards (including
+    physical printing) with a single consent; further mutations activate,
+    suspend, and cancel cards and set spending limits. Card details are accessed
+    through the digital card query surface.
+- aid: swan-io:swan-io-payments-api
+  name: Swan Payments API
+  tags:
+  - Payments
+  - SEPA
+  - Credit Transfer
+  - Direct Debit
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.swan.io/api/services/payments
+  baseURL: https://api.swan.io/live-partner/graphql
+  properties:
+  - url: https://docs.swan.io/developers/
+    type: Documentation
+  - url: https://api-reference.swan.io/
+    type: APIReference
+  - url: graphql/swan-io.graphql
+    type: GraphQL
+  - url: collections/swan-io.postman_collection.json
+    type: PostmanCollection
+  - url: collections/swan-io.opencollection.json
+    type: OpenCollection
+  description: Initiate and track SEPA payments. The initiateCreditTransfers
+    mutation sends SEPA Credit Transfers, including SEPA Instant Credit Transfers
+    via the isInstant flag; direct-debit mutations set up mandates and collect
+    SEPA Direct Debits. Payments group into consents that the account holder must
+    approve before execution.
+- aid: swan-io:swan-io-transactions-api
+  name: Swan Transactions API
+  tags:
+  - Transactions
+  - Statements
+  - Ledger
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.swan.io/api/services/transactions
+  baseURL: https://api.swan.io/live-partner/graphql
+  properties:
+  - url: https://docs.swan.io/developers/
+    type: Documentation
+  - url: https://api-reference.swan.io/
+    type: APIReference
+  - url: graphql/swan-io.graphql
+    type: GraphQL
+  - url: collections/swan-io.postman_collection.json
+    type: PostmanCollection
+  - url: collections/swan-io.opencollection.json
+    type: OpenCollection
+  description: Read the transaction ledger for an account - list and filter
+    transactions through Relay-style connections, inspect their status
+    (Pending, Booked, Rejected, Canceled), amounts, counterparties, and the
+    payment or card that produced them. Read-only query surface over the account
+    transaction history.
+- aid: swan-io:swan-io-onboarding-api
+  name: Swan Onboarding API
+  tags:
+  - Onboarding
+  - KYC
+  - Account Opening
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.swan.io/api/services/onboarding
+  baseURL: https://api.swan.io/live-unauthenticated/graphql
+  properties:
+  - url: https://docs.swan.io/developers/
+    type: Documentation
+  - url: https://api-reference.swan.io/
+    type: APIReference
+  - url: graphql/swan-io.graphql
+    type: GraphQL
+  - url: collections/swan-io.postman_collection.json
+    type: PostmanCollection
+  - url: collections/swan-io.opencollection.json
+    type: OpenCollection
+  description: Onboard individual and company account holders before they have a
+    session. Started against the Unauthenticated GraphQL endpoint, onboarding
+    mutations create and update an onboarding, attach supporting documents, and
+    finalize it - triggering KYC/KYB verification and, on approval, IBAN
+    distribution (typically within 10 minutes of ID verification).
+- aid: swan-io:swan-io-users-consents-api
+  name: Swan Users and Consents API
+  tags:
+  - Users
+  - Consents
+  - Authorization
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.swan.io/api/consent
+  baseURL: https://api.swan.io/live-partner/graphql
+  properties:
+  - url: https://docs.swan.io/developers/
+    type: Documentation
+  - url: https://api-reference.swan.io/
+    type: APIReference
+  - url: graphql/swan-io.graphql
+    type: GraphQL
+  - url: collections/swan-io.postman_collection.json
+    type: PostmanCollection
+  - url: collections/swan-io.opencollection.json
+    type: OpenCollection
+  description: Read users and drive Swan's strong-customer-authentication consent
+    flow. Sensitive mutations (adding memberships, issuing cards, initiating
+    payments) return a consent that the user must approve via a Swan-hosted
+    consent URL before the operation executes. Queries expose the current user
+    and consent status.
+common:
+- type: DomainSecurity
+  url: security/swan-io-domain-security.yml
+- type: Authentication
+  url: authentication/swan-io-authentication.yml
+- type: GitHubOrganization
+  url: https://github.com/swan-io
+- type: LinkedIn
+  url: https://www.linkedin.com/company/swanio
+- type: Website
+  url: https://www.swan.io
+- type: Documentation
+  url: https://docs.swan.io
+- type: Plans
+  url: plans/swan-io-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/swan-io-rate-limits.yml
+- type: FinOps
+  url: finops/swan-io-finops.yml
+- url: https://www.swan.io/blog
+  type: Blog
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

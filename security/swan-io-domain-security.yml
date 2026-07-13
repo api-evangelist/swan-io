@@ -1,0 +1,45 @@
+generated: '2026-07-12'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + GraphQL/OAuth hosts
+hosts:
+- host: swan.io
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Aug 16 15:10:30 2026 GMT
+  cert_issuer: Google Trust Services (WE1)
+  hsts: true
+  hsts_max_age: 31536000
+- host: www.swan.io
+  https: true
+  tls_version: TLSv1.3
+  hsts: true
+  hsts_max_age: 31536000
+- host: api.swan.io
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Feb 24 23:59:59 2027 GMT
+  cert_issuer: Amazon RSA 2048 M04
+  hsts: null
+  note: GraphQL API host; returns HTTP 404 to a bare GET (endpoints respond to POST).
+- host: oauth.swan.io
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Feb 23 23:59:59 2027 GMT
+  cert_issuer: Amazon RSA 2048 M04
+  hsts: null
+  note: OAuth2 token host; returns HTTP 404 to a bare GET.
+- host: docs.swan.io
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Sep 17 01:37:19 2026 GMT
+  cert_issuer: Let's Encrypt (YE1)
+  hsts: true
+  hsts_max_age: 31536000
+domains:
+- domain: swan.io
+  dnssec: false
+  caa: []
+  spf: true
+  spf_record: 'v=spf1 include:amazonses.com include:spf.mailjet.com include:_spf.google.com include:spf.mandrillapp.com include:stspg-customer.com include:8668360.spf02.hubspotemail.net include:mail.zendesk.com include:mailgun.org ~all'
+  dmarc: true
+  dmarc_policy: none

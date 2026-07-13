@@ -1,0 +1,46 @@
+specification: API Commons Rate Limits
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/RateLimits
+provider: Swan
+providerId: swan-io
+created: '2026-07-12'
+modified: '2026-07-12'
+reconciled: true
+tags:
+- Embedded Banking
+- Banking as a Service
+- BaaS
+- GraphQL
+- Rate Limiting
+- Quotas
+- Throttling
+description: >-
+  Swan enforces a per-IP request rate limit on its GraphQL API. The documented
+  default limit is 2,000 requests every 5 minutes for each IP address, applied
+  across the Partner and Unauthenticated endpoints. Because Swan is a single
+  GraphQL API, the limit is counted per HTTP request (one GraphQL query or
+  mutation), not per REST route.
+notes: >-
+  The 2,000-requests-per-5-minutes-per-IP figure is taken from Swan's developer
+  documentation. Confirm any per-Project or environment-specific limits with
+  Swan support for high-volume Live workloads.
+sources:
+- https://docs.swan.io/developers/
+- https://docs.swan.io/api/authentication
+responseCodes:
+  throttled: 429
+limits:
+- name: Requests Per IP
+  scope: ip
+  metric: requests
+  limit: 2000
+  window: 5m
+  notes: Default limit of 2,000 requests every 5 minutes for each IP address.
+policies:
+- name: Backend-Only Calls
+  description: API calls must originate from the backend; Swan blocks direct frontend calls, which also concentrates request volume behind server IPs for rate-limit accounting.
+- name: Backoff Strategy
+  description: On HTTP 429, clients should back off and retry with exponential backoff and jitter.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

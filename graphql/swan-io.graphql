@@ -1,0 +1,564 @@
+"""
+Swan GraphQL API (Partner API) - representative SDL
+
+Swan exposes a GraphQL API for embedded banking. This schema is the PRIMARY
+artifact for the Swan catalog entry because Swan's public API is GraphQL, not
+REST. It is a GROUNDED but PARTIAL model: query names, mutation names, the
+Relay-style connection pattern, and the account / membership / card / payment /
+onboarding / consent domains are taken from Swan's public documentation and API
+Reference (docs.swan.io, api-reference.swan.io). Field-level detail (exact
+scalar fields, enum members, and input shapes) is REPRESENTATIVE / MODELED to
+capture the shape of the API honestly - it is not a byte-for-byte copy of Swan's
+introspected schema. Verify against the live schema via introspection on the
+Sandbox endpoint or the API Explorer before relying on exact fields.
+
+Endpoints (transport = HTTPS POST with a GraphQL body; NOT REST, NOT WebSocket):
+  Live  Partner:         https://api.swan.io/live-partner/graphql
+  Live  Unauthenticated: https://api.swan.io/live-unauthenticated/graphql
+  Sandbox Partner:       https://api.swan.io/sandbox-partner/graphql
+  Sandbox Partner Admin: https://api.swan.io/sandbox-partner-admin/graphql
+  Sandbox Unauthenticated: https://api.swan.io/sandbox-unauthenticated/graphql
+  OAuth2 token endpoint (REST): https://oauth.swan.io/oauth2
+
+Auth: OAuth2 Bearer. Client credentials flow for server-to-server access
+tokens; authorization code flow for user access tokens. All calls are
+backend-only and scoped to a partner Project.
+
+Real-time: Swan delivers events via HTTP webhooks. No GraphQL subscription
+(Subscription root) and no wss:// endpoint are documented, so no Subscription
+type is modeled here. See ../review.yml.
+"""
+
+# ---------------------------------------------------------------
+# Scalars
+# ---------------------------------------------------------------
+
+scalar Date
+scalar DateTime
+scalar AmountValue
+"IBAN, formatted per ISO 13616."
+scalar IBAN
+"BIC / SWIFT code."
+scalar BIC
+scalar URL
+scalar EmailAddress
+scalar PhoneNumber
+
+# ---------------------------------------------------------------
+# Enums
+# ---------------------------------------------------------------
+
+enum AccountStatus {
+  Opened
+  Suspended
+  Closing
+  Closed
+}
+
+enum AccountHolderType {
+  Individual
+  Company
+}
+
+enum AccountMembershipStatus {
+  Enabled
+  InvitationSent
+  BindingUserError
+  Suspended
+  ConsentPending
+  Disabled
+}
+
+enum CardStatus {
+  Processing
+  Enabled
+  Canceled
+  ConsentPending
+}
+
+enum CardType {
+  Virtual
+  VirtualAndPhysical
+  SingleUseVirtual
+}
+
+enum SpendingLimitPeriod {
+  Daily
+  Weekly
+  Monthly
+  Always
+}
+
+enum TransactionStatusInfo {
+  Pending
+  Booked
+  Rejected
+  Canceled
+  Released
+  Upcoming
+}
+
+enum PaymentStatus {
+  Initiated
+  Rejected
+  ConsentPending
+  Consented
+}
+
+enum CreditTransferType {
+  SepaCreditTransferOut
+  SepaInstantCreditTransferOut
+  InternalCreditTransferOut
+}
+
+enum OnboardingStatus {
+  Ongoing
+  Invalid
+  Valid
+  Finalized
+}
+
+enum ConsentStatus {
+  Created
+  Pending
+  Accepted
+  Refused
+  Expired
+}
+
+# ---------------------------------------------------------------
+# Relay pagination
+# ---------------------------------------------------------------
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type Amount {
+  value: AmountValue!
+  currency: String!
+}
+
+# ---------------------------------------------------------------
+# Accounts / holders / IBAN
+# ---------------------------------------------------------------
+
+type Account {
+  id: ID!
+  number: String!
+  name: String!
+  IBAN: IBAN
+  BIC: BIC
+  currency: String!
+  status: AccountStatus!
+  balances: Balances
+  holder: AccountHolder!
+  memberships(first: Int, after: String): AccountMembershipConnection!
+  transactions(first: Int, after: String, filters: TransactionFilterInput): TransactionConnection!
+  cards(first: Int, after: String): CardConnection!
+  language: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Balances {
+  available: Amount!
+  booked: Amount!
+  pending: Amount!
+  reserved: Amount!
+}
+
+type AccountConnection {
+  edges: [AccountEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type AccountEdge {
+  cursor: String!
+  node: Account!
+}
+
+type AccountHolder {
+  id: ID!
+  type: AccountHolderType!
+  verificationStatus: String!
+  info: AccountHolderInfo!
+  residencyAddress: Address
+  accounts(first: Int, after: String): AccountConnection!
+  createdAt: DateTime!
+}
+
+type AccountHolderInfo {
+  name: String!
+  email: EmailAddress
+  businessActivity: String
+  registrationNumber: String
+}
+
+type Address {
+  addressLine1: String
+  addressLine2: String
+  city: String
+  postalCode: String
+  country: String
+}
+
+# ---------------------------------------------------------------
+# Account memberships
+# ---------------------------------------------------------------
+
+type AccountMembership {
+  id: ID!
+  status: AccountMembershipStatus!
+  account: Account!
+  user: User
+  email: EmailAddress!
+  canInitiatePayments: Boolean!
+  canManageAccountMembership: Boolean!
+  canManageBeneficiaries: Boolean!
+  canManageCards: Boolean!
+  canViewAccount: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type AccountMembershipConnection {
+  edges: [AccountMembershipEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type AccountMembershipEdge {
+  cursor: String!
+  node: AccountMembership!
+}
+
+# ---------------------------------------------------------------
+# Cards
+# ---------------------------------------------------------------
+
+type Card {
+  id: ID!
+  type: CardType!
+  status: CardStatus!
+  name: String
+  maskedPan: String
+  expiryDate: String
+  accountMembership: AccountMembership!
+  spendingLimits: [SpendingLimit!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type SpendingLimit {
+  amount: Amount!
+  period: SpendingLimitPeriod!
+}
+
+type CardConnection {
+  edges: [CardEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type CardEdge {
+  cursor: String!
+  node: Card!
+}
+
+# ---------------------------------------------------------------
+# Transactions
+# ---------------------------------------------------------------
+
+type Transaction {
+  id: ID!
+  amount: Amount!
+  label: String
+  reference: String
+  statusInfo: TransactionStatusInfo!
+  side: String!
+  counterparty: String
+  account: Account!
+  card: Card
+  executionDate: DateTime
+  bookingDate: DateTime
+  createdAt: DateTime!
+}
+
+type TransactionConnection {
+  edges: [TransactionEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type TransactionEdge {
+  cursor: String!
+  node: Transaction!
+}
+
+# ---------------------------------------------------------------
+# Payments (SEPA credit transfer / direct debit)
+# ---------------------------------------------------------------
+
+type Payment {
+  id: ID!
+  status: PaymentStatus!
+  createdAt: DateTime!
+  creditTransfers(first: Int, after: String): CreditTransferConnection!
+}
+
+type CreditTransfer {
+  id: ID!
+  type: CreditTransferType!
+  amount: Amount!
+  status: PaymentStatus!
+  isInstant: Boolean!
+  reference: String
+  createdAt: DateTime!
+}
+
+type CreditTransferConnection {
+  edges: [CreditTransferEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type CreditTransferEdge {
+  cursor: String!
+  node: CreditTransfer!
+}
+
+# ---------------------------------------------------------------
+# Onboarding
+# ---------------------------------------------------------------
+
+type Onboarding {
+  id: ID!
+  accountHolderType: AccountHolderType!
+  status: OnboardingStatus!
+  onboardingUrl: URL
+  email: EmailAddress
+  language: String
+  redirectUrl: URL
+  supportingDocumentCollection: SupportingDocumentCollection
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type SupportingDocumentCollection {
+  id: ID!
+  statusInfo: String!
+  supportingDocuments: [SupportingDocument!]!
+}
+
+type SupportingDocument {
+  id: ID!
+  supportingDocumentType: String!
+  status: String!
+}
+
+# ---------------------------------------------------------------
+# Users / consents
+# ---------------------------------------------------------------
+
+type User {
+  id: ID!
+  firstName: String
+  lastName: String
+  mobilePhoneNumber: PhoneNumber
+  birthDate: Date
+  accountMemberships(first: Int, after: String): AccountMembershipConnection!
+  createdAt: DateTime!
+}
+
+type Consent {
+  id: ID!
+  status: ConsentStatus!
+  consentUrl: URL!
+  purpose: String!
+  createdAt: DateTime!
+  expiresAt: DateTime
+}
+
+# ---------------------------------------------------------------
+# Inputs
+# ---------------------------------------------------------------
+
+input TransactionFilterInput {
+  status: [TransactionStatusInfo!]
+  search: String
+  paymentProduct: [String!]
+}
+
+input AddAccountMembershipInput {
+  accountId: ID!
+  email: EmailAddress!
+  canInitiatePayments: Boolean
+  canManageAccountMembership: Boolean
+  canManageBeneficiaries: Boolean
+  canManageCards: Boolean
+  canViewAccount: Boolean
+  residencyAddress: AddressInput
+}
+
+input AddressInput {
+  addressLine1: String
+  addressLine2: String
+  city: String
+  postalCode: String
+  country: String
+}
+
+input AddCardInput {
+  accountMembershipId: ID!
+  cardProductId: ID
+  name: String
+  spendingLimit: SpendingLimitInput
+  printPhysicalCard: Boolean
+}
+
+input SpendingLimitInput {
+  amount: AmountInput!
+  period: SpendingLimitPeriod!
+}
+
+input AmountInput {
+  value: AmountValue!
+  currency: String!
+}
+
+input InitiateCreditTransfersInput {
+  accountId: ID!
+  consentRedirectUrl: URL!
+  creditTransfers: [CreditTransferInput!]!
+}
+
+input CreditTransferInput {
+  amount: AmountInput!
+  sepaBeneficiary: SepaBeneficiaryInput!
+  reference: String
+  isInstant: Boolean
+}
+
+input SepaBeneficiaryInput {
+  name: String!
+  iban: IBAN!
+  isMyOwnIban: Boolean
+}
+
+input OnboardCompanyAccountHolderInput {
+  accountName: String
+  email: EmailAddress
+  language: String
+  redirectUrl: URL
+}
+
+input OnboardIndividualAccountHolderInput {
+  accountName: String
+  email: EmailAddress
+  language: String
+  redirectUrl: URL
+}
+
+# ---------------------------------------------------------------
+# Consent-carrying mutation payloads
+# ---------------------------------------------------------------
+
+type AddAccountMembershipsPayload {
+  accountMemberships: [AccountMembership!]
+  consent: Consent
+}
+
+type AddCardsPayload {
+  cards: [Card!]
+  consent: Consent
+}
+
+type InitiateCreditTransfersPayload {
+  payment: Payment
+  consent: Consent
+}
+
+type AccountMembershipPayload {
+  accountMembership: AccountMembership
+}
+
+type OnboardingPayload {
+  onboarding: Onboarding
+}
+
+# ---------------------------------------------------------------
+# Query root
+# ---------------------------------------------------------------
+
+type Query {
+  "The user tied to the current access token."
+  user: User
+
+  "Look up a single account by id."
+  account(id: ID!): Account
+
+  "List accounts visible to the current Project / token."
+  accounts(first: Int, after: String): AccountConnection!
+
+  "Look up a single account holder."
+  accountHolder(id: ID!): AccountHolder
+
+  "Look up a single account membership."
+  accountMembership(id: ID!): AccountMembership
+
+  "Look up a single card."
+  card(id: ID!): Card
+
+  "Look up a single transaction."
+  transaction(id: ID!): Transaction
+
+  "Look up an onboarding by id (Unauthenticated and Partner APIs)."
+  onboarding(id: ID!): Onboarding
+
+  "Look up a consent by id."
+  consent(id: ID!): Consent
+}
+
+# ---------------------------------------------------------------
+# Mutation root
+# ---------------------------------------------------------------
+
+type Mutation {
+  "Add up to 200 account memberships with a single consent."
+  addAccountMemberships(input: AddAccountMembershipInput!): AddAccountMembershipsPayload!
+
+  "Suspend an active account membership."
+  suspendAccountMembership(id: ID!): AccountMembershipPayload!
+
+  "Resume a previously suspended account membership."
+  resumeAccountMembership(id: ID!): AccountMembershipPayload!
+
+  "Bind an invited account membership to a user."
+  bindAccountMembership(id: ID!): AccountMembershipPayload!
+
+  "Issue up to 200 cards (optionally physical) with a single consent."
+  addCards(input: AddCardInput!): AddCardsPayload!
+
+  "Cancel a card."
+  cancelCard(id: ID!): AddCardsPayload!
+
+  "Initiate one or more SEPA credit transfers (set isInstant for SEPA Instant)."
+  initiateCreditTransfers(input: InitiateCreditTransfersInput!): InitiateCreditTransfersPayload!
+
+  "Start onboarding for a company account holder (Unauthenticated API)."
+  onboardCompanyAccountHolder(input: OnboardCompanyAccountHolderInput!): OnboardingPayload!
+
+  "Start onboarding for an individual account holder (Unauthenticated API)."
+  onboardIndividualAccountHolder(input: OnboardIndividualAccountHolderInput!): OnboardingPayload!
+
+  "Finalize an onboarding once required fields and documents are provided."
+  finalizeOnboarding(id: ID!): OnboardingPayload!
+}
+
+# No Subscription root: Swan uses HTTP webhooks for events, and no GraphQL
+# subscription / wss:// transport is documented as of 2026-07-12.

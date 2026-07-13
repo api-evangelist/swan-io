@@ -1,0 +1,51 @@
+generated: '2026-07-12'
+method: documented
+source: https://docs.swan.io/api/authentication
+summary:
+  types:
+  - oauth2
+  - http
+schemes:
+- name: oauth2ClientCredentials
+  type: oauth2
+  flow: clientCredentials
+  tokenUrl: https://oauth.swan.io/oauth2/token
+  description: 'Server-to-server access. Exchange your Project Client ID and Client
+    Secret (from the Swan dashboard under Developers > API) for an access token,
+    then send it as `Authorization: Bearer $ACCESS_TOKEN`. Used for Partner API
+    calls that act on behalf of the Project.'
+  sources:
+  - https://docs.swan.io/api/authentication
+  - https://swan-io.github.io/swan-partner-frontend/oauth2/
+- name: oauth2AuthorizationCode
+  type: oauth2
+  flow: authorizationCode
+  authorizationUrl: https://oauth.swan.io/oauth2/auth
+  tokenUrl: https://oauth.swan.io/oauth2/token
+  description: 'User access tokens. Redirect the user through Swan''s OAuth2
+    authorization-code flow to obtain a token that acts on behalf of that user
+    (for example to read their account or approve consents). Sent as
+    `Authorization: Bearer $ACCESS_TOKEN`.'
+  sources:
+  - https://docs.swan.io/api/authentication
+  - https://swan-io.github.io/swan-partner-frontend/oauth2/
+- name: bearerAuth
+  type: http
+  scheme: bearer
+  description: 'All GraphQL requests carry the OAuth2 access token in an
+    `Authorization: Bearer` header. Calls are backend-only - Swan blocks API
+    requests originating directly from a frontend. Tokens, credentials, and URLs
+    do not work across the Sandbox and Live environments.'
+  sources:
+  - https://docs.swan.io/api/authentication
+notes: >-
+  Swan authorization is scoped to a partner Project and, for many mutations,
+  additionally gated by a Strong Customer Authentication "consent": sensitive
+  operations (add memberships, issue cards, initiate payments) return a consent
+  object with a Swan-hosted consentUrl the user must approve before the operation
+  executes. The exact OAuth2 auth/token paths under https://oauth.swan.io/oauth2
+  should be confirmed against the live dashboard; the token exchange base is
+  documented as POST https://oauth.swan.io/oauth2.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

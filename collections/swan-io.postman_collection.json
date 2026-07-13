@@ -1,0 +1,230 @@
+{
+  "info": {
+    "_postman_id": "0f2c9d31-5b1a-4c77-9c2e-2a7f3b0a11e2",
+    "name": "Swan Partner API (GraphQL)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Swan embedded-banking GraphQL API. Transport is HTTPS POST with a GraphQL body against the Partner endpoint (https://api.swan.io/live-partner/graphql) or the Unauthenticated endpoint for onboarding. Authenticate with an OAuth2 Bearer access token scoped to your Project. Use the sandbox hosts (sandbox-partner / sandbox-unauthenticated) for testing.",
+      "type": "text/plain"
+    }
+  },
+  "item": [
+    {
+      "name": "Accounts",
+      "item": [
+        {
+          "name": "Get account by id",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{partnerUrl}}",
+              "host": [ "{{partnerUrl}}" ]
+            },
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query Account($id: ID!) {\n  account(id: $id) {\n    id\n    name\n    IBAN\n    BIC\n    status\n    balances { available { value currency } }\n  }\n}",
+                "variables": "{\n  \"id\": \"account-id\"\n}"
+              }
+            },
+            "description": "Fetch a single account, its IBAN/BIC, status, and balances."
+          },
+          "response": []
+        },
+        {
+          "name": "List accounts",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{partnerUrl}}",
+              "host": [ "{{partnerUrl}}" ]
+            },
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query Accounts($first: Int) {\n  accounts(first: $first) {\n    totalCount\n    edges { node { id name status } }\n  }\n}",
+                "variables": "{\n  \"first\": 20\n}"
+              }
+            },
+            "description": "List accounts visible to the current Project / access token."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Account Memberships",
+      "item": [
+        {
+          "name": "Add account memberships",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{partnerUrl}}",
+              "host": [ "{{partnerUrl}}" ]
+            },
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation AddAccountMemberships($input: AddAccountMembershipInput!) {\n  addAccountMemberships(input: $input) {\n    accountMemberships { id status email }\n    consent { id consentUrl status }\n  }\n}",
+                "variables": "{\n  \"input\": {\n    \"accountId\": \"account-id\",\n    \"email\": \"member@example.com\",\n    \"canViewAccount\": true\n  }\n}"
+              }
+            },
+            "description": "Add up to 200 account memberships with a single consent. Returns a consent URL to approve."
+          },
+          "response": []
+        },
+        {
+          "name": "Resume account membership",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{partnerUrl}}",
+              "host": [ "{{partnerUrl}}" ]
+            },
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation ResumeAccountMembership($id: ID!) {\n  resumeAccountMembership(id: $id) {\n    accountMembership { id status }\n  }\n}",
+                "variables": "{\n  \"id\": \"membership-id\"\n}"
+              }
+            },
+            "description": "Resume an account membership that was previously suspended."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cards",
+      "item": [
+        {
+          "name": "Add cards",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{partnerUrl}}",
+              "host": [ "{{partnerUrl}}" ]
+            },
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation AddCards($input: AddCardInput!) {\n  addCards(input: $input) {\n    cards { id type status }\n    consent { id consentUrl status }\n  }\n}",
+                "variables": "{\n  \"input\": {\n    \"accountMembershipId\": \"membership-id\",\n    \"printPhysicalCard\": false\n  }\n}"
+              }
+            },
+            "description": "Issue up to 200 cards (optionally physical) with a single consent."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Initiate SEPA credit transfers",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{partnerUrl}}",
+              "host": [ "{{partnerUrl}}" ]
+            },
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation InitiateCreditTransfers($input: InitiateCreditTransfersInput!) {\n  initiateCreditTransfers(input: $input) {\n    payment { id status }\n    consent { id consentUrl status }\n  }\n}",
+                "variables": "{\n  \"input\": {\n    \"accountId\": \"account-id\",\n    \"consentRedirectUrl\": \"https://example.com/callback\",\n    \"creditTransfers\": [\n      {\n        \"amount\": { \"value\": \"42.00\", \"currency\": \"EUR\" },\n        \"sepaBeneficiary\": { \"name\": \"Jane Doe\", \"iban\": \"FR7699999001000000000000000\" },\n        \"isInstant\": true\n      }\n    ]\n  }\n}"
+              }
+            },
+            "description": "Send one or more SEPA credit transfers; set isInstant for SEPA Instant Credit Transfers."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "List account transactions",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{partnerUrl}}",
+              "host": [ "{{partnerUrl}}" ]
+            },
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query Transactions($id: ID!, $first: Int) {\n  account(id: $id) {\n    transactions(first: $first) {\n      totalCount\n      edges { node { id label statusInfo amount { value currency } } }\n    }\n  }\n}",
+                "variables": "{\n  \"id\": \"account-id\",\n  \"first\": 20\n}"
+              }
+            },
+            "description": "Read the transaction ledger for an account via a Relay-style connection."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Onboarding",
+      "item": [
+        {
+          "name": "Onboard company account holder",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{unauthenticatedUrl}}",
+              "host": [ "{{unauthenticatedUrl}}" ]
+            },
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation OnboardCompany($input: OnboardCompanyAccountHolderInput!) {\n  onboardCompanyAccountHolder(input: $input) {\n    onboarding { id status onboardingUrl }\n  }\n}",
+                "variables": "{\n  \"input\": {\n    \"accountName\": \"Acme SAS\",\n    \"email\": \"founder@acme.example\",\n    \"redirectUrl\": \"https://example.com/onboarding/complete\"\n  }\n}"
+              }
+            },
+            "description": "Start onboarding for a company account holder against the Unauthenticated endpoint; returns an onboardingUrl. This operation does not require a Bearer token."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{bearerToken}}" }
+    ]
+  },
+  "variable": [
+    { "key": "partnerUrl", "value": "https://api.swan.io/live-partner/graphql", "type": "string" },
+    { "key": "unauthenticatedUrl", "value": "https://api.swan.io/live-unauthenticated/graphql", "type": "string" },
+    { "key": "bearerToken", "value": "", "type": "string" }
+  ]
+}

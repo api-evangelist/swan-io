@@ -1,0 +1,109 @@
+specification: API Commons Plans
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/Plans
+provider: Swan
+providerId: swan-io
+created: '2026-07-12'
+modified: '2026-07-12'
+reconciled: false
+tags:
+- Embedded Banking
+- Banking as a Service
+- BaaS
+- Payments
+- Cards
+- Plans
+description: >-
+  Swan is a Banking-as-a-Service platform sold under commercial partner
+  contracts rather than self-serve public API tiers. Pricing is typically a
+  combination of a platform/subscription fee plus per-unit banking fees (per
+  active account, per card, per SEPA transaction, plus interchange share) and is
+  negotiated per partner based on volume and product scope. The Sandbox is free
+  to use for development and testing; going Live requires a signed agreement and
+  regulatory onboarding. Exact figures are not published as a public price list.
+notes: >-
+  Swan does not publish a fixed public pricing page with per-unit rates; plan
+  entries below are structural placeholders describing the shape of Swan's
+  commercial model, not reconciled amounts. Contact Swan sales for a quote.
+sources:
+- https://www.swan.io
+- https://docs.swan.io/developers/
+- https://www.swan.io/pricing
+plans:
+- id: swan-sandbox
+  name: Sandbox
+  type: free
+  description: >-
+    Free sandbox environment for building and testing the full GraphQL API,
+    including simulated accounts, cards, payments, and onboarding.
+  entries:
+  - label: Sandbox Access
+    name: sandbox
+    type: free
+    metric: requests
+    limit: -1
+    timeFrame: month
+    geo: eu
+    unit: 1
+    price: free
+    userMultiplied: false
+  elements:
+  - name: Full GraphQL API in Sandbox
+  - name: Test Accounts, Cards, Payments, Onboarding
+- id: swan-partner
+  name: Partner (Live)
+  type: contract
+  description: >-
+    Commercial partner agreement for Live embedded banking. Combines a platform
+    fee with per-unit banking fees; terms are negotiated per partner based on
+    volume and product scope (accounts, cards, SEPA payments, acquiring).
+  entries:
+  - label: Platform Fee
+    name: platform_fee
+    type: flat
+    metric: subscription
+    limit: -1
+    timeFrame: month
+    geo: eu
+    unit: 1
+    price: contact sales
+    userMultiplied: false
+  - label: Active Account Fee
+    name: active_account
+    type: usage
+    metric: accounts
+    limit: -1
+    timeFrame: month
+    geo: eu
+    unit: 1
+    price: contact sales
+    userMultiplied: true
+  - label: Card Fee
+    name: card
+    type: usage
+    metric: cards
+    limit: -1
+    timeFrame: month
+    geo: eu
+    unit: 1
+    price: contact sales
+    userMultiplied: true
+  - label: SEPA Transaction Fee
+    name: sepa_transaction
+    type: usage
+    metric: transactions
+    limit: -1
+    timeFrame: month
+    geo: eu
+    unit: 1
+    price: contact sales
+    userMultiplied: false
+  elements:
+  - name: Accounts and IBANs
+  - name: Card Issuing
+  - name: SEPA Credit Transfer and Direct Debit
+  - name: Digital Onboarding (KYC/KYB)
+  - name: Webhooks
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

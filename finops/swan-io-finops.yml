@@ -1,0 +1,106 @@
+specification: FinOps Framework
+specificationVersion: '1.0'
+schema: https://www.finops.org/framework/
+provider: Swan
+providerId: swan-io
+created: '2026-07-12'
+modified: '2026-07-12'
+reconciled: false
+tags:
+- Embedded Banking
+- Banking as a Service
+- BaaS
+- Payments
+- Cards
+- FinOps
+- Cost Management
+- FOCUS
+description: >-
+  FinOps view of Swan spend. As a Banking-as-a-Service provider, Swan bills
+  partners under a negotiated contract rather than a public usage meter: a
+  platform/subscription fee plus per-unit banking fees driven by the number of
+  active accounts, issued cards, and SEPA transactions processed, offset in some
+  deals by a share of card interchange. Because rates are contractual, cost
+  allocation depends on tagging Swan usage (accounts, cards, payments) back to
+  the internal product or customer segment that drove it.
+notes: >-
+  Swan does not publish public per-unit rates, so amounts are not reconciled
+  here; the meters below describe the cost drivers of Swan's model so a partner
+  can map them to their own billing. Verify actual rates against your Swan
+  partner agreement.
+sources:
+- https://www.swan.io
+- https://www.swan.io/pricing
+- https://docs.swan.io/developers/
+- https://focus.finops.org/focus-specification/v1-3/
+alignedWith:
+  framework: FinOps Foundation Framework
+  frameworkUrl: https://www.finops.org/framework/
+  dataSpec: FOCUS
+  dataSpecVersion: '1.3'
+  dataSpecUrl: https://focus.finops.org/focus-specification/v1-3/
+publisherName: Swan
+serviceCategory: Financial Services
+billingModel:
+  pricingCategory: Contract-Based
+  billingFrequency: Monthly
+  billingCurrency: EUR
+  chargeCategories:
+  - Usage
+  - Purchase
+  - Adjustment
+focusColumns:
+  ServiceName: Swan Embedded Banking
+  ServiceCategory: Financial Services
+  ProviderName: Swan
+  PublisherName: Swan
+  InvoiceIssuerName: Swan
+  BillingCurrency: EUR
+  ChargeCategory: Usage
+  PricingCategory: Contract-Based
+meters:
+- name: platform_fee
+  description: Recurring platform / subscription fee for the partner agreement.
+  unit: months
+  aggregation: sum
+  dimensions:
+  - project
+- name: active_accounts
+  description: Number of active accounts, a primary per-unit cost driver.
+  unit: accounts
+  aggregation: max
+  dimensions:
+  - project
+  - accountHolderType
+- name: issued_cards
+  description: Number of issued virtual and physical cards billed per card.
+  unit: cards
+  aggregation: max
+  dimensions:
+  - project
+  - cardType
+- name: sepa_transactions
+  description: SEPA credit transfers and direct debits processed, billed per transaction.
+  unit: transactions
+  aggregation: sum
+  dimensions:
+  - project
+  - paymentType
+- name: interchange_share
+  description: Card interchange revenue share (a credit/adjustment against fees in some deals).
+  unit: EUR
+  aggregation: sum
+  dimensions:
+  - project
+principles:
+- name: Visibility
+  description: Track active accounts, issued cards, and SEPA transaction volume per Project against the Swan invoice.
+- name: Allocation
+  description: Tag Swan accounts and cards to the internal product line or end customer so banking fees map to cost centers.
+- name: Optimization
+  description: Close dormant accounts and unused cards; batch payments; weigh SEPA Instant vs standard transfers by fee and need.
+- name: Accountability
+  description: Assign an owner for the Swan partner relationship; review monthly account/card/transaction counts against the contract.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com
