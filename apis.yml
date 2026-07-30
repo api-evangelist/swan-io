@@ -12,7 +12,20 @@ description: Swan is a European embedded-banking / Banking-as-a-Service (BaaS)
   (client credentials for server-to-server and authorization code for user
   access tokens) and scoped to a partner Project, with separate Sandbox and Live
   environments.
-image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+accessModel:
+  pricing: free
+  onboarding: self-serve
+  trial: false
+  try_now: true
+  public: false
+  label: Free · Self-serve signup
+  confidence: high
+  source:
+  - plans
+  - authentication
+  generated: '2026-07-22'
+  method: derived
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/swan-io.png
 tags:
 - Embedded Banking
 - Banking as a Service
