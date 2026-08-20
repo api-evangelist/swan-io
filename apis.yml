@@ -29,6 +29,19 @@ image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/swan-io.pn
 tags:
 - Embedded Banking
 - Banking as a Service
+- Backend-as-a-Service
+- Payments
+- Account
+- Cards
+- IBAN
+- SEPA
+- Europe
+- France
+- Fintech
+- GraphQL
+tags_raw:
+- Embedded Banking
+- Banking as a Service
 - BaaS
 - Payments
 - Accounts
@@ -46,6 +59,9 @@ apis:
 - aid: swan-io:swan-io-accounts-api
   name: Swan Accounts API
   tags:
+  - Account
+  - IBAN
+  tags_raw:
   - Accounts
   - Account Holders
   - IBAN
@@ -71,6 +87,10 @@ apis:
 - aid: swan-io:swan-io-account-memberships-api
   name: Swan Account Memberships API
   tags:
+  - Account Memberships
+  - Permissions
+  - User
+  tags_raw:
   - Account Memberships
   - Permissions
   - Users
@@ -147,6 +167,10 @@ apis:
 - aid: swan-io:swan-io-transactions-api
   name: Swan Transactions API
   tags:
+  - Transaction
+  - Statements
+  - Ledger
+  tags_raw:
   - Transactions
   - Statements
   - Ledger
@@ -197,6 +221,10 @@ apis:
 - aid: swan-io:swan-io-users-consents-api
   name: Swan Users and Consents API
   tags:
+  - User
+  - Consents
+  - Authorization
+  tags_raw:
   - Users
   - Consents
   - Authorization
