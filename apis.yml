@@ -12,6 +12,17 @@ description: Swan is a European embedded-banking / Banking-as-a-Service (BaaS)
   (client credentials for server-to-server and authorization code for user
   access tokens) and scoped to a partner Project, with separate Sandbox and Live
   environments.
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: free
   onboarding: self-serve
