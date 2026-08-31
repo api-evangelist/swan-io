@@ -40,7 +40,7 @@ image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/swan-io.pn
 tags:
 - Embedded Banking
 - Banking as a Service
-- Backend-as-a-Service
+- BaaS
 - Payments
 - Account
 - Cards
@@ -71,6 +71,7 @@ apis:
   name: Swan Accounts API
   tags:
   - Account
+  - Account Holders
   - IBAN
   tags_raw:
   - Accounts
