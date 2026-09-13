@@ -1,0 +1,23 @@
+generated: '2026-09-11'
+method: probed
+source: https://mcp.swan.io/graphql/mcp
+status: published
+server:
+  name: swan-io
+  transport: http
+  url: https://mcp.swan.io/graphql/mcp
+deployment:
+  mode: remote
+  endpoint: https://mcp.swan.io/graphql/mcp
+  verified: probed
+  probe: live
+  checked: '2026-09-11'
+  source: docs-check 2026-09-12 (endpoint found in the provider's own documentation, then probed)
+tools_count: 2
+tools:
+- name: search-graphql-schema
+  description: ''
+- name: introspect-graphql-type
+  description: ''
+tools_source: live tools/list via initialize handshake, 2026-09-12 (signals/audit_mcp_authorship.py --probe)
+authorship: provider
