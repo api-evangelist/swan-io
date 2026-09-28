@@ -16,8 +16,12 @@ deployment:
 tools_count: 2
 tools:
 - name: search-graphql-schema
-  description: ''
+  description: Intelligent search through the public GraphQL schema of the Swan API with context-aware
+    results
 - name: introspect-graphql-type
-  description: ''
+  description: Get detailed information about specific GraphQL types of the Swan API with context. Can
+    introspect multiple types at once.
 tools_source: live tools/list via initialize handshake, 2026-09-12 (signals/audit_mcp_authorship.py --probe)
 authorship: provider
+descriptions_source: live tools/list (authorship probe or saved capture); filled by backfill-tools-from-authorship.py
+  --descriptions, 2026-09-28
