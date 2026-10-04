@@ -40,7 +40,6 @@ image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/swan-io.pn
 tags:
 - Embedded Banking
 - Banking as a Service
-- Backend-as-a-Service
 - Payments
 - Account
 - Cards
@@ -50,10 +49,10 @@ tags:
 - France
 - Fintech
 - GraphQL
+- Embedded Finance
 tags_raw:
 - Embedded Banking
 - Banking as a Service
-- BaaS
 - Payments
 - Accounts
 - Cards
@@ -63,6 +62,7 @@ tags_raw:
 - France
 - Fintech
 - GraphQL
+- Embedded Finance
 created: '2026-07-12'
 modified: '2026-07-12'
 specificationVersion: '0.23'
