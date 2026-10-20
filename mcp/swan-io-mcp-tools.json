@@ -1,0 +1,291 @@
+{
+  "endpoint": "https://mcp.swan.io/graphql/mcp",
+  "captured": "2026-10-20",
+  "method": "initialize + tools/list (anonymous, no tool called; roadmap#992)",
+  "protocol_version": "2025-06-18",
+  "server_info": {
+    "name": "swan-mcp-server",
+    "version": "1.0.0"
+  },
+  "result": {
+    "tools": [
+      {
+        "name": "search-graphql-schema",
+        "title": "Search GraphQL Schema",
+        "description": "Intelligent search through the public GraphQL schema of the Swan API with context-aware results",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "keywords": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Search keywords to find relevant schema parts"
+            },
+            "limit": {
+              "default": 20,
+              "description": "Maximum number of search results",
+              "type": "number",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "contextSize": {
+              "default": 10000,
+              "description": "Maximum context size in characters",
+              "type": "number",
+              "minimum": 1000,
+              "maximum": 50000
+            },
+            "includeSearchResults": {
+              "default": false,
+              "description": "Include individual search results with scores (useful for debugging)",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "keywords"
+          ]
+        },
+        "outputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "object",
+              "properties": {
+                "sdl": {
+                  "type": "string",
+                  "description": "Relevant GraphQL schema in SDL format"
+                },
+                "includedTypes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Types included in the context"
+                },
+                "truncated": {
+                  "type": "boolean",
+                  "description": "Whether the context was truncated due to size limits"
+                },
+                "searchResults": {
+                  "description": "Individual search results with scores (only included if includeSearchResults is true)",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "parentType": {
+                        "type": "string"
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "score": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "kind",
+                      "path",
+                      "score"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "originalSize": {
+                  "type": "number",
+                  "description": "Original schema size before filtering"
+                }
+              },
+              "required": [
+                "sdl",
+                "includedTypes",
+                "truncated",
+                "originalSize"
+              ],
+              "additionalProperties": false
+            },
+            "errorReason": {
+              "description": "The reason for the error",
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "errorType": {
+                      "type": "string",
+                      "enum": [
+                        "HTTP_ERROR",
+                        "GRAPHQL_ERROR",
+                        "NETWORK_ERROR",
+                        "UNKNOWN_ERROR"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "errorType"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "string",
+                  "const": "Unknown"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "introspect-graphql-type",
+        "title": "Introspect GraphQL Types",
+        "description": "Get detailed information about specific GraphQL types of the Swan API with context. Can introspect multiple types at once.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "types": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Names of the GraphQL types to introspect"
+            },
+            "includeNested": {
+              "default": true,
+              "description": "Include related types and nested fields",
+              "type": "boolean"
+            },
+            "maxDepth": {
+              "default": 3,
+              "description": "Maximum depth for nested type exploration",
+              "type": "number",
+              "minimum": 1,
+              "maximum": 5
+            },
+            "contextSize": {
+              "default": 15000,
+              "description": "Maximum context size in characters",
+              "type": "number",
+              "minimum": 1000,
+              "maximum": 50000
+            }
+          },
+          "required": [
+            "types"
+          ]
+        },
+        "outputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "object",
+              "properties": {
+                "sdl": {
+                  "type": "string",
+                  "description": "GraphQL schema in SDL format with the types and their context"
+                },
+                "typeInfo": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "kind"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "description": "Basic information about the requested types"
+                },
+                "dependencies": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Related types included in the context"
+                },
+                "truncated": {
+                  "type": "boolean",
+                  "description": "Whether the context was truncated due to size limits"
+                },
+                "originalSize": {
+                  "type": "number",
+                  "description": "Original schema size before filtering"
+                }
+              },
+              "required": [
+                "sdl",
+                "typeInfo",
+                "dependencies",
+                "truncated",
+                "originalSize"
+              ],
+              "additionalProperties": false
+            },
+            "errorReason": {
+              "description": "The reason for the error",
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "errorType": {
+                      "type": "string",
+                      "enum": [
+                        "HTTP_ERROR",
+                        "GRAPHQL_ERROR",
+                        "NETWORK_ERROR",
+                        "UNKNOWN_ERROR"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "errorType"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "string",
+                  "const": "Unknown"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    ]
+  }
+}
